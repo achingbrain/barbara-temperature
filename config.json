@@ -1,22 +1,23 @@
 {
 	"registry": {
-		"name": "brewbot",
-		"service": "brewbot-registry-rest",
+		"name": "barbara",
+		"service": "barbara-registry-rest",
 		"version": "1.0.0"
 	},
 	"rest": {
-		"name": "brewbot-temperature-rest",
+		"name": "barbara-temperature-rest",
 		"version": "1.0.0",
 		"resources": "./resources"
 	},
 	"statto": {
-		"name": "brewbot-statto-rest",
+		"name": "barbara-statto-rest",
 		"version": "1.0.0"
 	},
 	"brew": {
 		"id": "58bd080d810ee941397ffb74a600007a"
 	},
 	"arduino": {
-		"port": "/dev/cu.usbserial-A501ZF2O"
+		"port": "/dev/cu.usbserial-A501ZF2O",
+		"pin": 7
 	}
 }
