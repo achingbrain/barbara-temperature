@@ -14,9 +14,12 @@ TemperatureController.prototype.afterPropertiesSet = function() {
 	var farenheitValues = [];
 	var index = 0;
 
+	LOG.info("TemperatureController", "Connecting to board", this._config.get("arduino:port"));
 	var board = new firmata.Board(this._config.get("arduino:port"), function (error) {
+		LOG.info("Board", this._config.get("arduino:port"), "initialised");
+
 		if(error) {
-			console.error(error);
+			LOG.error("TemperatureController", "Error connecting to board", error);
 			return;
 		}
 
@@ -25,7 +28,7 @@ TemperatureController.prototype.afterPropertiesSet = function() {
 		board.sendOneWireConfig(pin, true);
 		board.sendOneWireSearch(pin, function(error, devices) {
 			if(error) {
-				console.error(error);
+				LOG.error("TemperatureController", "Error searching for 1-wire devices", error);
 				return;
 			}
 
@@ -38,7 +41,7 @@ TemperatureController.prototype.afterPropertiesSet = function() {
 				board.sendOneWireReset(pin);
 				board.sendOneWireWriteAndRead(pin, device, 0xBE, 9, function(error, data) {
 					if(error) {
-						console.error(error);
+						LOG.error("TemperatureController", "Error sending write and read", error.toString());
 						return;
 					}
 
@@ -46,8 +49,7 @@ TemperatureController.prototype.afterPropertiesSet = function() {
 					var celsius = raw / 16.0;
 					var fahrenheit = celsius * 1.8 + 32.0;
 
-					console.info("celsius", celsius);
-					console.info("fahrenheit", fahrenheit);
+					LOG.info("TemperatureController", celsius, "°C", fahrenheit, "°F");
 
 					if(index == 10) {
 						index = 0;
@@ -67,38 +69,8 @@ TemperatureController.prototype.afterPropertiesSet = function() {
 				this._celsius = this._findAverage(celciusValues);
 				this._farenheit = this._findAverage(farenheitValues);
 			}.bind(this), 1000);
-		});
+		}.bind(this));
 	}.bind(this));
-/*
-	this._board = new five.Board({port: this._config.get("arduino:port")});
-	this._board.on("ready", function() {
-		LOG.info("TemperatureController", "Board ready");
-		var sensor = new five.Sensor("A0");
-
-		sensor.on("data", function() {
-			var voltage = this.value * 0.004882814;
-			var celsius = (voltage - 0.5) * 100;
-
-//			var temp = ( (data[1] << 8) + data[0] )*0.0625;
-
-			//var celsius = (100 * (this.value / 1000) - 50).toFixed(2);
-			var fahrenheit = celsius * (9/5) + 32;
-
-			if(index == 10) {
-				index = 0;
-			}
-
-			celciusValues[index] = celsius;
-			farenheitValues[index] = fahrenheit;
-
-			index++;
-		});
-
-		setInterval(function() {
-			this._celsius = this._findAverage(celciusValues);
-			this._farenheit = this._findAverage(farenheitValues);
-		}.bind(this), 1000);
-	}.bind(this));*/
 }
 
 TemperatureController.prototype._findAverage = function(temperatures) {
@@ -117,32 +89,6 @@ TemperatureController.prototype.getCelsius = function() {
 
 TemperatureController.prototype.getFarenheit = function() {
 	return this._farenheit;
-}
-
-TemperatureController.prototype.onSeaportFound = function(seaport) {
-	seaport.get(this._config.get("statto:name") + "@" + this._config.get("statto:version"), function(services) {
-		var url = "http://" + services[0].host + ":" + services[0].port;
-
-		LOG.info("Will POST temperature to", url + "/brews/" + this._config.get("brew:id"));
-
-		var client = restify.createJsonClient({
-			url: url
-		});
-
-		// periodically report the temperature
-		setInterval(function() {
-			/*client.post("/brews/" + this._config.get("brew:id") + "/temperature", {
-				celcius: this._celsius
-			}, function(error) {
-				if(error) {
-					LOG.error("Could not report temperature to", url, error);
-
-					return;
-				}
-			});*/
-			LOG.info("Would have posted", this._celsius, "degC");
-		}.bind(this), 60000);
-	}.bind(this));
 }
 
 module.exports = TemperatureController;

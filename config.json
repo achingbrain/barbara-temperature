@@ -17,7 +17,8 @@
 		"id": "58bd080d810ee941397ffb74a600007a"
 	},
 	"arduino": {
-		"port": "/dev/cu.usbserial-A501ZF2O",
+		"port": "/dev/cu.usbserial-A501ZHYA",
 		"pin": 7
-	}
+	},
+	"notificationInterval": 600000
 }

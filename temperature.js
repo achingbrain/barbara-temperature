@@ -4,6 +4,7 @@ var LOG = require("winston"),
 	Columbo = require("columbo"),
 	bonvoyage = require("bonvoyage"),
 	TemperatureController = require("./controllers/TemperatureController"),
+	TemperatureNotifier = require("./controllers/TemperatureNotifier"),
 	Hapi = require("hapi");
 
 // set up arguments
@@ -13,12 +14,20 @@ var container = new Container();
 container.register("config", config);
 
 container.createAndRegister("temperatureController", TemperatureController);
+container.createAndRegister("temperatureNotifier", TemperatureNotifier);
 
 // create a REST api
 container.createAndRegister("columbo", Columbo, {
 	resourceDirectory: config.get("rest:resources"),
 	resourceCreator: function(resource, name) {
 		return container.createAndRegister(name + "Resource", resource);
+	}
+});
+
+// inject a dummy seaport - we'll overwrite this when the real one becomes available
+container.register("seaport", {
+	query: function() {
+		return [];
 	}
 });
 
@@ -46,9 +55,8 @@ bonvoyageClient.find(function(error, seaport) {
 		return;
 	}
 
+	LOG.info("Found seaport server");
+});
+bonvoyageClient.on("seaportUp", function(seaport) {
 	container.register("seaport", seaport);
-
-	LOG.info("Found seaport");
-
-	container.find("temperatureController").onSeaportFound(seaport);
 });
