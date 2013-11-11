@@ -68,7 +68,7 @@ TemperatureController.prototype.afterPropertiesSet = function() {
 
 					var crc = this.crc8(data.slice(0, data.length - 1));
 
-					if(crc != data[length - 1]) {
+					if(crc != data[data.length - 1]) {
 						LOG.info("TemperatureController", "Data read from sensor may be corrupt", crc, " - ", data);
 					} else {
 						LOG.info("TemperatureController", "Data read from sensor ok");
