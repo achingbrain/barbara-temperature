@@ -94,8 +94,8 @@ TemperatureController.prototype._checkTemperature = function() {
 				this._index = 0;
 			}
 
-			this._celciusValues[index] = celsius;
-			this._farenheitValues[index] = fahrenheit;
+			this._celciusValues[this._index] = celsius;
+			this._farenheitValues[this._index] = fahrenheit;
 
 			this._index++;
 
