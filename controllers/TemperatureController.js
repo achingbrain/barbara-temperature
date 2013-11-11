@@ -39,31 +39,34 @@ TemperatureController.prototype.afterPropertiesSet = function() {
 				board.sendOneWireReset(pin);
 				board.sendOneWireWrite(pin, device, 0x44);
 				board.sendOneWireDelay(pin, 1000);
-				board.sendOneWireReset(pin);
-				board.sendOneWireWriteAndRead(pin, device, 0xBE, 9, function(error, data) {
-					if(error) {
-						LOG.error("TemperatureController", "Error sending write and read", error.toString());
-						return;
-					}
 
-					var raw = (data[1] << 8) | data[0];
-					var celsius = raw / 16.0;
-					var fahrenheit = celsius * 1.8 + 32.0;
+				setTimeout(function() {
+					board.sendOneWireReset(pin);
+					board.sendOneWireWriteAndRead(pin, device, 0xBE, 9, function(error, data) {
+						if(error) {
+							LOG.error("TemperatureController", "Error sending write and read", error.toString());
+							return;
+						}
 
-					LOG.info("TemperatureController", celsius, "°C", fahrenheit, "°F");
+						var raw = (data[1] << 8) | data[0];
+						var celsius = raw / 16.0;
+						var fahrenheit = celsius * 1.8 + 32.0;
 
-					if(index == 10) {
-						index = 0;
-					}
+						LOG.info("TemperatureController", celsius, "°C", fahrenheit, "°F");
 
-					celciusValues[index] = celsius;
-					farenheitValues[index] = fahrenheit;
+						if(index == 10) {
+							index = 0;
+						}
 
-					index++;
+						celciusValues[index] = celsius;
+						farenheitValues[index] = fahrenheit;
 
-					this._celsius = this._findAverage(celciusValues);
-					this._farenheit = this._findAverage(farenheitValues);
-				}.bind(this));
+						index++;
+
+						this._celsius = this._findAverage(celciusValues);
+						this._farenheit = this._findAverage(farenheitValues);
+					}.bind(this));
+				}.bind(this), 1500);
 			}.bind(this);
 
 			// read the temperature now
