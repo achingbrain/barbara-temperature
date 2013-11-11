@@ -35,6 +35,7 @@ TemperatureController.prototype.afterPropertiesSet = function() {
 			var device = devices[0];
 
 			var readTemperature = function() {
+				LOG.info("TemperatureController", "Reading temperature");
 				board.sendOneWireReset(pin);
 				board.sendOneWireWrite(pin, device, 0x44);
 				board.sendOneWireDelay(pin, 1000);
