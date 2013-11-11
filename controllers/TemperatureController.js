@@ -9,6 +9,26 @@ TemperatureController = function() {
 	this._farenheit = NaN;
 };
 
+TemperatureController.prototype.crc8 = function(data) {
+	var crc = 0;
+
+	for(var i = 0; i < data.length; i++) {
+		var inbyte = data[i];
+
+		for (var n = 8; n; n--) {
+			var mix = (crc ^ inbyte) & 0x01;
+			crc >>= 1;
+
+			if (mix) {
+				crc ^= 0x8C;
+			}
+
+			inbyte >>= 1;
+		}
+	}
+	return crc;
+};
+
 TemperatureController.prototype.afterPropertiesSet = function() {
 	var celciusValues = [];
 	var farenheitValues = [];
@@ -39,34 +59,39 @@ TemperatureController.prototype.afterPropertiesSet = function() {
 				board.sendOneWireReset(pin);
 				board.sendOneWireWrite(pin, device, 0x44);
 				board.sendOneWireDelay(pin, 1000);
+				board.sendOneWireReset(pin);
+				board.sendOneWireWriteAndRead(pin, device, 0xBE, 9, function(error, data) {
+					if(error) {
+						LOG.error("TemperatureController", "Error sending write and read", error.toString());
+						return;
+					}
 
-				setTimeout(function() {
-					board.sendOneWireReset(pin);
-					board.sendOneWireWriteAndRead(pin, device, 0xBE, 9, function(error, data) {
-						if(error) {
-							LOG.error("TemperatureController", "Error sending write and read", error.toString());
-							return;
-						}
+					var crc = this.crc8(data.slice(0, data.length - 1));
 
-						var raw = (data[1] << 8) | data[0];
-						var celsius = raw / 16.0;
-						var fahrenheit = celsius * 1.8 + 32.0;
+					if(crc != data[length - 1]) {
+						LOG.info("TemperatureController", "Data read from sensor may be corrupt", crc, " - ", data);
+					} else {
+						LOG.info("TemperatureController", "Data read from sensor ok");
+					}
 
-						LOG.info("TemperatureController", celsius, "°C", fahrenheit, "°F");
+					var raw = (data[1] << 8) | data[0];
+					var celsius = raw / 16.0;
+					var fahrenheit = celsius * 1.8 + 32.0;
 
-						if(index == 10) {
-							index = 0;
-						}
+					LOG.info("TemperatureController", celsius, "°C", fahrenheit, "°F");
 
-						celciusValues[index] = celsius;
-						farenheitValues[index] = fahrenheit;
+					if(index == 10) {
+						index = 0;
+					}
 
-						index++;
+					celciusValues[index] = celsius;
+					farenheitValues[index] = fahrenheit;
 
-						this._celsius = this._findAverage(celciusValues);
-						this._farenheit = this._findAverage(farenheitValues);
-					}.bind(this));
-				}.bind(this), 1500);
+					index++;
+
+					this._celsius = this._findAverage(celciusValues);
+					this._farenheit = this._findAverage(farenheitValues);
+				}.bind(this));
 			}.bind(this);
 
 			// read the temperature now
