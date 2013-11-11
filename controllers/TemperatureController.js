@@ -7,10 +7,6 @@ TemperatureController = function() {
 	this._config = Autowire;
 	this._celsius = NaN;
 	this._farenheit = NaN;
-
-	this._index = 0;
-	this._celciusValues = [];
-	this._farenheitValues = [];
 };
 
 TemperatureController.prototype.crc8 = function(data) {
@@ -34,6 +30,10 @@ TemperatureController.prototype.crc8 = function(data) {
 };
 
 TemperatureController.prototype.afterPropertiesSet = function() {
+	var celciusValues = [];
+	var farenheitValues = [];
+	var index = 0;
+
 	LOG.info("TemperatureController", "Connecting to board", this._config.get("arduino:port"));
 	var board = new firmata.Board(this._config.get("arduino:port"), function (error) {
 		LOG.info("Board", this._config.get("arduino:port"), "initialised");
@@ -43,64 +43,62 @@ TemperatureController.prototype.afterPropertiesSet = function() {
 			return;
 		}
 
-		this._board = board;
+		var pin = this._config.get("arduino:pin");
 
-		// read the temperature now
-		this._checkTemperature();
-
-		// and every 10 seconds
-		setInterval(this._checkTemperature.bind(this), 10000);
-	}.bind(this));
-}
-
-TemperatureController.prototype._checkTemperature = function() {
-	var pin = this._config.get("arduino:pin");
-
-	this._board.sendOneWireConfig(pin, true);
-	this._board.sendOneWireSearch(pin, function(error, devices) {
-		if(error) {
-			LOG.error("TemperatureController", "Error searching for 1-wire devices", error.message);
-			return;
-		}
-
-		var device = devices[0];
-
-		LOG.info("TemperatureController", "Reading temperature");
-		this._board.sendOneWireReset(pin);
-		this._board.sendOneWireWrite(pin, device, 0x44);
-		this._board.sendOneWireDelay(pin, 1000);
-		this._board.sendOneWireReset(pin);
-		this._board.sendOneWireWriteAndRead(pin, device, 0xBE, 9, function(error, data) {
+		board.sendOneWireConfig(pin, true);
+		board.sendOneWireSearch(pin, function(error, devices) {
 			if(error) {
-				LOG.error("TemperatureController", "Error sending write and read", error.message);
+				LOG.error("TemperatureController", "Error searching for 1-wire devices", error.message);
 				return;
 			}
 
-			var crc = this.crc8(data.slice(0, data.length - 1));
+			var device = devices[0];
 
-			if(crc != data[data.length - 1]) {
-				LOG.info("TemperatureController", "Data read from sensor may be corrupt", crc, " - ", data);
-			} else {
-				LOG.info("TemperatureController", "Data read from sensor ok");
-			}
+			var readTemperature = function() {
+				LOG.info("TemperatureController", "Reading temperature");
+				board.sendOneWireReset(pin);
+				board.sendOneWireWrite(pin, device, 0x44);
+				board.sendOneWireDelay(pin, 1000);
+				board.sendOneWireReset(pin);
+				board.sendOneWireWriteAndRead(pin, device, 0xBE, 9, function(error, data) {
+					if(error) {
+						LOG.error("TemperatureController", "Error sending write and read", error.message);
+						return;
+					}
 
-			var raw = (data[1] << 8) | data[0];
-			var celsius = raw / 16.0;
-			var fahrenheit = celsius * 1.8 + 32.0;
+					var crc = this.crc8(data.slice(0, data.length - 1));
 
-			LOG.info("TemperatureController", celsius, "°C", fahrenheit, "°F");
+					if(crc != data[data.length - 1]) {
+						LOG.info("TemperatureController", "Data read from sensor may be corrupt", crc, " - ", data);
+					} else {
+						LOG.info("TemperatureController", "Data read from sensor ok");
+					}
 
-			if(this._index == 10) {
-				this._index = 0;
-			}
+					var raw = (data[1] << 8) | data[0];
+					var celsius = raw / 16.0;
+					var fahrenheit = celsius * 1.8 + 32.0;
 
-			this._celciusValues[this._index] = celsius;
-			this._farenheitValues[this._index] = fahrenheit;
+					LOG.info("TemperatureController", celsius, "°C", fahrenheit, "°F");
 
-			this._index++;
+					if(index == 10) {
+						index = 0;
+					}
 
-			this._celsius = this._findAverage(this._celciusValues);
-			this._farenheit = this._findAverage(this._farenheitValues);
+					celciusValues[index] = celsius;
+					farenheitValues[index] = fahrenheit;
+
+					index++;
+
+					this._celsius = this._findAverage(celciusValues);
+					this._farenheit = this._findAverage(farenheitValues);
+				}.bind(this));
+			}.bind(this);
+
+			// read the temperature now
+			readTemperature();
+
+			// and every 10 seconds
+			setInterval(readTemperature, 10000);
 		}.bind(this));
 	}.bind(this));
 }
