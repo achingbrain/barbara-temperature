@@ -59,7 +59,7 @@ TemperatureController.prototype._checkTemperature = function() {
 	this._board.sendOneWireConfig(pin, true);
 	this._board.sendOneWireSearch(pin, function(error, devices) {
 		if(error) {
-			LOG.error("TemperatureController", "Error searching for 1-wire devices", error);
+			LOG.error("TemperatureController", "Error searching for 1-wire devices", error.message);
 			return;
 		}
 
@@ -72,7 +72,7 @@ TemperatureController.prototype._checkTemperature = function() {
 		this._board.sendOneWireReset(pin);
 		this._board.sendOneWireWriteAndRead(pin, device, 0xBE, 9, function(error, data) {
 			if(error) {
-				LOG.error("TemperatureController", "Error sending write and read", error.toString());
+				LOG.error("TemperatureController", "Error sending write and read", error.message);
 				return;
 			}
 
