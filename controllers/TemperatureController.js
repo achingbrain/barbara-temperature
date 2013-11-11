@@ -59,16 +59,17 @@ TemperatureController.prototype.afterPropertiesSet = function() {
 					farenheitValues[index] = fahrenheit;
 
 					index++;
-				});
-			};
+
+					this._celsius = this._findAverage(celciusValues);
+					this._farenheit = this._findAverage(farenheitValues);
+				}.bind(this));
+			}.bind(this);
+
+			// read the temperature now
 			readTemperature();
 
-			setInterval(readTemperature, 5000);
-
-			setInterval(function() {
-				this._celsius = this._findAverage(celciusValues);
-				this._farenheit = this._findAverage(farenheitValues);
-			}.bind(this), 1000);
+			// and every 10 seconds
+			setInterval(readTemperature, 10000);
 		}.bind(this));
 	}.bind(this));
 }
