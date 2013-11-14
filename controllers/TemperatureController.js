@@ -49,7 +49,7 @@ TemperatureController.prototype.afterPropertiesSet = function() {
 		board.sendOneWireSearch(pin, function(error, devices) {
 			if(error) {
 				LOG.error("TemperatureController", "Error searching for 1-wire devices", error.message);
-				return;
+				throw new Error("TemperatureController Error searching for 1-wire devices: " + error.message)
 			}
 
 			var device = devices[0];
@@ -62,7 +62,8 @@ TemperatureController.prototype.afterPropertiesSet = function() {
 				board.sendOneWireReset(pin);
 				board.sendOneWireWriteAndRead(pin, device, 0xBE, 9, function(error, data) {
 					if(error) {
-						LOG.error("TemperatureController", "Error sending write and read", error.message);
+						LOG.warn("TemperatureController", "Error sending write and read", error.message);
+
 						return;
 					}
 
@@ -91,14 +92,14 @@ TemperatureController.prototype.afterPropertiesSet = function() {
 
 					this._celsius = this._findAverage(celciusValues);
 					this._farenheit = this._findAverage(farenheitValues);
+
+					// read again in 10 seconds
+					setTimeout(readTemperature, 10000);
 				}.bind(this));
 			}.bind(this);
 
 			// read the temperature now
 			readTemperature();
-
-			// and every 10 seconds
-			setInterval(readTemperature, 10000);
 		}.bind(this));
 	}.bind(this));
 }
