@@ -4,7 +4,7 @@ var LOG = require("winston"),
 	Columbo = require("columbo"),
 	bonvoyage = require("bonvoyage"),
 	Hapi = require("hapi"),
-	path = requre("path");
+	path = require("path");
 
 // set up arguments
 config.argv().env().file(path.resolve(__dirname, "config.json"));
