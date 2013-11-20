@@ -3,22 +3,21 @@ var LOG = require("winston"),
 	Container = require("wantsit").Container,
 	Columbo = require("columbo"),
 	bonvoyage = require("bonvoyage"),
-	TemperatureController = require("./controllers/TemperatureController"),
-	TemperatureNotifier = require("./controllers/TemperatureNotifier"),
-	Hapi = require("hapi");
+	Hapi = require("hapi"),
+	path = requre("path");
 
 // set up arguments
-config.argv().env().file("config.json");
+config.argv().env().file(path.resolve(__dirname, "config.json"));
 
 var container = new Container();
 container.register("config", config);
 
-container.createAndRegister("temperatureController", TemperatureController);
-container.createAndRegister("temperatureNotifier", TemperatureNotifier);
+container.createAndRegister("temperatureController", require(path.resolve(__dirname, "./controllers/TemperatureController")));
+container.createAndRegister("temperatureNotifier", require(path.resolve(__dirname, "./controllers/TemperatureNotifier")));
 
 // create a REST api
 container.createAndRegister("columbo", Columbo, {
-	resourceDirectory: config.get("rest:resources"),
+	resourceDirectory: path.resolve(__dirname, config.get("rest:resources")),
 	resourceCreator: function(resource, name) {
 		return container.createAndRegister(name + "Resource", resource);
 	}
@@ -47,15 +46,6 @@ bonvoyageClient.register({
 
 		LOG.info("RESTServer", "Running at", "http://localhost:" + port);
 	}
-});
-bonvoyageClient.find(function(error, seaport) {
-	if(error) {
-		LOG.error("Error finding seaport", error);
-
-		return;
-	}
-
-	LOG.info("Found seaport server");
 });
 bonvoyageClient.on("seaportUp", function(seaport) {
 	container.register("seaport", seaport);
