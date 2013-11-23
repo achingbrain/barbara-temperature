@@ -1,5 +1,4 @@
-var firmata = require("firmata"),
-	Autowire = require("wantsit").Autowire,
+var Autowire = require("wantsit").Autowire,
 	LOG = require("winston"),
 	restify = require("restify");
 

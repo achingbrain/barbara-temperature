@@ -12,7 +12,7 @@
 		"url": "git://github.com/achingbrain/barbara-temperature.git"
 	},
 	"dependencies": {
-		"firmata": "~0.3",
+		"serialport": "~1.2",
 		"winston": "~0.7",
 		"bonvoyage": "~1.0.0",
 		"underscore.string": "~2.3",
