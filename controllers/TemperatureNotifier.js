@@ -37,7 +37,7 @@ TemperatureNotifier.prototype.afterPropertiesSet = function() {
 			celsius: this._temperatureController.getCelsius()
 		}, function(error) {
 			if(error) {
-				LOG.error("TemperatureNotifier", "Could not report temperature to", url, error);
+				LOG.error("TemperatureNotifier", "Could not report temperature to", url, error.message);
 
 				return;
 			}

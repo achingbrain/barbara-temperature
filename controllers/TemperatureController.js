@@ -35,7 +35,10 @@ TemperatureController.prototype._calculateTemperature = function(data) {
 	var crc = this._crc8(data.slice(0, data.length - 1));
 
 	if(crc != data[data.length - 1]) {
-		LOG.warn("TemperatureController", "Data read from sensor may be corrupt", crc, " - ", data);
+		LOG.warn("TemperatureController", "Data read from sensor may be corrupt", crc, " - ", Array.prototype.slice.call(data, 0, data.length));
+
+		// return current average instead
+		return this._celsius;
 	}
 
 	var raw = (data[1] << 8) | data[0];
