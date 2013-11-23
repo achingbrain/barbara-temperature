@@ -19,6 +19,8 @@ TemperatureNotifier.prototype.afterPropertiesSet = function() {
 		var services = this._seaport.query(this._config.get("statto:name") + "@" + this._config.get("statto:version"));
 
 		if(services.length == 0) {
+			LOG.info("TemperatureNotifier", "No statto instance found!");
+
 			return;
 		}
 
