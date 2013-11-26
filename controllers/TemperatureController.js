@@ -1,13 +1,12 @@
-var SerialPort = require("serialport").SerialPort,
-	Autowire = require("wantsit").Autowire,
-	LOG = require("winston"),
-	restify = require("restify");
+var Autowire = require("wantsit").Autowire;
 
 var START_RESPONSE = 0xF0;
 var END_RESPONSE = 0xF7;
 
 TemperatureController = function() {
 	this._config = Autowire;
+	this._logger = Autowire;
+	this._temperatureSensor = Autowire;
 	this._celsius = NaN;
 };
 
@@ -35,7 +34,7 @@ TemperatureController.prototype._calculateTemperature = function(data) {
 	var crc = this._crc8(data.slice(0, data.length - 1));
 
 	if(crc != data[data.length - 1]) {
-		LOG.warn("TemperatureController", "Data read from sensor may be corrupt", crc, " - ", Array.prototype.slice.call(data, 0, data.length));
+		this._logger.warn("TemperatureController", "Data read from sensor may be corrupt", crc, " - ", Array.prototype.slice.call(data, 0, data.length));
 
 		// return current average instead
 		return this._celsius;
@@ -47,24 +46,20 @@ TemperatureController.prototype._calculateTemperature = function(data) {
 }
 
 TemperatureController.prototype.afterPropertiesSet = function() {
-	LOG.info("TemperatureController", "Connecting to board", this._config.get("arduino:port"));
-	var serialPort = new SerialPort(this._config.get("arduino:port"), {
-		baudrate: 9600
-	});
-	serialPort.on("open", function () {
-		LOG.info("TemperatureController", this._config.get("arduino:port"), "initialised");
+	this._temperatureSensor.on("open", function () {
+		this._logger.info("TemperatureController", this._config.get("arduino:port"), "initialised");
 
 		var celsiusValues = [];
 		var index = 0;
 		var buffer = new Buffer(0);
 
-		serialPort.on("data", function(data) {
+		this._temperatureSensor.on("data", function(data) {
 			buffer = Buffer.concat([buffer, data]);
 
 			if(buffer[0] == START_RESPONSE && buffer[buffer.length - 1] == END_RESPONSE) {
 				var celsius = this._calculateTemperature(buffer.slice(1, buffer.length - 1));
 
-				LOG.info("TemperatureController", celsius, "°C");
+				this._logger.info("TemperatureController", celsius, "°C");
 
 				if(index == 10) {
 					index = 0;
@@ -100,7 +95,7 @@ TemperatureController.prototype.getCelsius = function() {
 	return this._celsius;
 }
 
-TemperatureController.prototype.getFarenheit = function() {
+TemperatureController.prototype.getFahrenheit = function() {
 	return this._celsius * 1.8 + 32.0;
 }
 

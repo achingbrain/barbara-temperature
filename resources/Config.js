@@ -1,5 +1,4 @@
-var LOG = require("winston"),
-	Autowire = require("wantsit").Autowire;
+var Autowire = require("wantsit").Autowire;
 
 Config = function() {
 	this._config = Autowire;

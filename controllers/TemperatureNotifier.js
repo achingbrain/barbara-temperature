@@ -1,11 +1,11 @@
-var Autowire = require("wantsit").Autowire,
-	LOG = require("winston"),
-	restify = require("restify");
+var Autowire = require("wantsit").Autowire;
 
 TemperatureNotifier = function() {
 	this._config = Autowire;
 	this._temperatureController = Autowire;
 	this._seaport = Autowire;
+	this._logger = Autowire;
+	this._restify = Autowire;
 };
 
 TemperatureNotifier.prototype.afterPropertiesSet = function() {
@@ -19,7 +19,7 @@ TemperatureNotifier.prototype.afterPropertiesSet = function() {
 		var services = this._seaport.query(this._config.get("statto:name") + "@" + this._config.get("statto:version"));
 
 		if(services.length == 0) {
-			LOG.info("TemperatureNotifier", "No statto instance found!");
+			this._logger.info("TemperatureNotifier", "No statto instance found!");
 
 			return;
 		}
@@ -28,9 +28,9 @@ TemperatureNotifier.prototype.afterPropertiesSet = function() {
 		var url = "http://" + services[0].host + ":" + services[0].port;
 		var path = "/brews/" + this._config.get("brew:id") + "/temperatures";
 
-		LOG.info("TemperatureNotifier", "Posting", this._temperatureController.getCelsius(), "degC to", url + path);
+		this._logger.info("TemperatureNotifier", "Posting", this._temperatureController.getCelsius(), "degC to", url + path);
 
-		var client = restify.createJsonClient({
+		var client = this._restify.createJsonClient({
 			url: url
 		});
 		client.post(path, {
@@ -42,8 +42,8 @@ TemperatureNotifier.prototype.afterPropertiesSet = function() {
 				return;
 			}
 
-			LOG.info("TemperatureNotifier", "Reported temperature OK");
-		});
+			this._logger.info("TemperatureNotifier", "Reported temperature OK");
+		}.bind(this));
 	}.bind(this), this._config.get("notificationInterval"));
 }
 

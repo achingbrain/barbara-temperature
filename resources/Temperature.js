@@ -1,16 +1,16 @@
-var LOG = require("winston"),
-	Autowire = require("wantsit").Autowire;
+var Autowire = require("wantsit").Autowire;
 
 Temperature = function() {
 	this._temperatureController = Autowire;
+	this._logger = Autowire;
 };
 
 Temperature.prototype.retrieveOne = function(request) {
-	LOG.info("Incoming request. Current temperature", this._temperatureController.getCelsius(), "deg C", this._temperatureController.getFarenheit(), "deg F");
+	this._logger.info("Incoming request. Current temperature", this._temperatureController.getCelsius(), "deg C", this._temperatureController.getFahrenheit(), "deg F");
 
 	request.reply({
 		"celsius": this._temperatureController.getCelsius(),
-		"farenheit": this._temperatureController.getFarenheit()
+		"fahrenheit": this._temperatureController.getFahrenheit()
 	});
 };
 

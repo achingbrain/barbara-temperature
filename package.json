@@ -24,8 +24,8 @@
 	},
 	"devDependencies": {
 		"nodeunit": "~0.8",
-		"jsmockito": "~1.0",
-		"jshamcrest": "~0.7",
+		"should": "~2.1",
+		"sinon": "~1.7",
 		"istanbul": "~0.1"
 	}
 }
