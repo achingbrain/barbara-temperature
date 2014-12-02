@@ -1,31 +1,27 @@
 {
-	"name": "barbara-temperature",
-	"version": "1.0.0",
-	"private": true,
-	"description": "Measures temperature",
-	"main": "temperature.js",
-	"scripts": {
-		"test": "istanbul cover nodeunit test"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git://github.com/achingbrain/barbara-temperature.git"
-	},
-	"dependencies": {
-		"serialport": "~1.2",
-		"winston": "~0.7",
-		"bonvoyage": "~1.0.0",
-		"underscore.string": "~2.3",
-		"nconf": "~0.6",
-		"wantsit": "~1.0",
-		"columbo": "~1.0",
-		"restify": "~2.6",
-		"hapi": "~1.14"
-	},
-	"devDependencies": {
-		"nodeunit": "~0.8",
-		"should": "~2.1",
-		"sinon": "~1.7",
-		"istanbul": "~0.1"
-	}
+  "name": "barbara-temperature",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Measures temperature",
+  "main": "temperature.js",
+  "scripts": {
+    "test": "istanbul cover _mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/achingbrain/barbara-temperature.git"
+  },
+  "dependencies": {
+    "columbo": "^1.2.0",
+    "hapi": "^7.5.2",
+    "restify": "^2.8.3",
+    "wantsit": "^1.5.0"
+  },
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "istanbul": "^0.3.2",
+    "mocha": "^2.0.1",
+    "sinon": "^1.12.1",
+    "testsuite": "^1.0"
+  }
 }
