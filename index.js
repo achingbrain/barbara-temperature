@@ -2,7 +2,8 @@ var Container = require('wantsit').Container,
   Columbo = require('columbo'),
   Hapi = require('hapi'),
   path = require('path'),
-  winston = require('winston')
+  winston = require('winston'),
+  restify = require('restify')
 
 if(!process.env.BARBARA_BREW) {
   throw new Error('Please specify a brew id')
@@ -23,7 +24,6 @@ container.createAndRegister('logger', winston.Logger, {
     })
   ]
 })
-container.register('restify', require('restify'))
 container.register('child_process', require('child_process'))
 
 var check = container.createAndRegister('sensorCheck', require('./lib/components/SensorCheck'))
@@ -35,7 +35,7 @@ check.on('ready', function() {
     url: process.env.BARBARA_DATABASE
   }))
 
-// create a REST api
+  // create a REST api
   container.createAndRegister('columbo', Columbo, {
     resourceDirectory: path.resolve(__dirname, './lib/resources'),
     resourceCreator: function(resource, name) {
