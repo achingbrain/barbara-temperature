@@ -10,18 +10,16 @@ Install dtc
 # ./dtc.sh
 ```
 
-Install cape overlay for temperature sensor (from the src directory of this repo)
+Compile and install cape overlay for temperature sensor (from the src directory of this repo)
 
 ```sh
-# dtc -O dtb -o BB-1WIRE-P9-22-00A0.dtbo -b o -@ BB-1WIRE-P9-22-00A0.dts
-# cp BB-1WIRE-P9-22-00A0.dtbo /lib/firmware/
+# dtc -O dtb -o /lib/firmware/BB-1WIRE-P9-22-00A0.dtbo -b o -@ BB-1WIRE-P9-22-00A0.dts
 ```
 
 Apply the overlay
 
 ```sh
-# export SLOTS=/sys/devices/bone_capemgr.*/slots
-# echo BB-1WIRE-P9-22 > $SLOTS
+# echo BB-1WIRE-P9-22 > /sys/devices/bone_capemgr.*/slots
 ```
 
 Check that it's been loaded

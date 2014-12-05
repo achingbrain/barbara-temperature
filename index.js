@@ -13,7 +13,7 @@ process.env.BARBARA_DATABASE = process.env.BARBARA_DATABASE || 'http://silenus.l
 process.env.BARBARA_PORT = process.env.BARBARA_PORT || 7583
 process.env.BARBARA_FREQUENCY = process.env.BARBARA_FREQUENCY || 10000
 process.env.BARBARA_NOTIFICATION_INTERVAL = process.env.BARBARA_NOTIFICATION_INTERVAL || 500000
-process.env.BARBARA_TEMPERATURE_SENSOR = process.env.BARBARA_TEMPERATURE_SENSOR || '28-0000054c0b2f'
+process.env.BARBARA_TEMPERATURE_SENSOR = process.env.BARBARA_TEMPERATURE_SENSOR || '28-00000521efdb'
 process.env.BARBARA_SLOTS = process.env.BARBARA_SLOTS || '/sys/devices/bone_capemgr.9/slots'
 
 var container = new Container()
