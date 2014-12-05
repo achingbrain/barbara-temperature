@@ -15,7 +15,8 @@
     "columbo": "^1.2.0",
     "hapi": "^7.5.2",
     "restify": "^2.8.3",
-    "wantsit": "^1.5.0"
+    "wantsit": "^1.5.0",
+    "winston": "^0.8"
   },
   "devDependencies": {
     "chai": "^1.10.0",
