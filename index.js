@@ -31,6 +31,10 @@ check.on('ready', function() {
   container.createAndRegister('temperatureController', require('./lib/controllers/TemperatureController'))
   container.createAndRegister('temperatureNotifier', require('./lib/controllers/TemperatureNotifier'))
 
+  container.register('notifierClient', restify.createJsonClient({
+    url: process.env.BARBARA_DATABASE
+  }))
+
 // create a REST api
   container.createAndRegister('columbo', Columbo, {
     resourceDirectory: path.resolve(__dirname, './lib/resources'),
