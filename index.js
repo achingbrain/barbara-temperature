@@ -8,7 +8,7 @@ if(!process.env.BARBARA_BREW) {
   throw new Error('Please specify a brew id')
 }
 
-process.env.BARBARA_DATABASE = process.env.BARBARA_DATABASE || 'http://localhost:5984'
+process.env.BARBARA_DATABASE = process.env.BARBARA_DATABASE || 'http://silenus.local:5984'
 process.env.BARBARA_PORT = process.env.BARBARA_PORT || 7583
 process.env.BARBARA_FREQUENCY = process.env.BARBARA_FREQUENCY || 10000
 process.env.BARBARA_NOTIFICATION_INTERVAL = process.env.BARBARA_NOTIFICATION_INTERVAL || 500000
